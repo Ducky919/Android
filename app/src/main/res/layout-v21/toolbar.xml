@@ -5,18 +5,37 @@
     android:id="@+id/toolbar"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:minHeight="?attr/actionBarSize"
-    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-    android:background="@color/colorPrimary"
-    >
+    android:elevation="4dp"
+    android:background="@color/colorPrimary">
 
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"
+        android:background="@color/colorPrimary"
+        android:src="@drawable/arrow" />
     <TextView
         android:id="@+id/editSearch"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:text="Test String"
+        android:text="@string/history_record"
         android:textColor="#FFFFFF"
+        android:textSize="20dp"
+        android:layout_gravity="center"
         android:padding="8dp" />
+    <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/bin"
+        android:scaleType="centerInside"
+        android:background="@color/colorPrimary"
+        android:adjustViewBounds="true"
+        android:layout_gravity="end"
+        android:layout_marginRight="15dp"
+        />
 </androidx.appcompat.widget.Toolbar>
