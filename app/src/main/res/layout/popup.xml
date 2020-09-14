@@ -6,19 +6,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:background="#000"
+    android:background="@color/colorPrimary"
     android:padding="10px">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This is a popup window.."
+        android:text="Do you want to delete all history"
         android:textColor="#fff"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Close"
+        android:text="Ok"
+        android:id="@+id/ok"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
         android:id="@+id/closePopupBtn"/>
+
+
 
 </LinearLayout>

@@ -1,24 +1,33 @@
 package com.hfad.myicon;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.mbms.MbmsErrors;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 public class MainActivity<i> extends Activity {
   static final HashMap<Integer, String> idButtonMap = new HashMap<>();
   boolean isZero = false;
   double resultNumber;
+  String historyText;
+  List<String> historyArray = new ArrayList<String>();
+
+
 
   // Function to Execute Operator
   public double applyOp(char op, double operand1, double operand2) {
@@ -144,11 +153,14 @@ public class MainActivity<i> extends Activity {
     equal.setOnClickListener(getOnEqualButtonClickListener(result));
   }
 
+
+
   private View.OnClickListener getOnHistoryButtonClickListener() {
     return new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         Intent i = new Intent(MainActivity.this,HistoryActivity.class);
+        i.putStringArrayListExtra("historyArray",(ArrayList<String>) historyArray);
         startActivity(i);
       }
     };
@@ -170,8 +182,11 @@ public class MainActivity<i> extends Activity {
       @Override
       public void onClick(View v) {
         resultNumber = evaluateMath(result.getText().toString());
+        historyText = result.getText().toString();
         DecimalFormat df = new DecimalFormat("0.###");
         result.setText(df.format(resultNumber));
+        historyText = historyText + "=" +  df.format(resultNumber);
+        historyArray.add(historyText);
       }
     };
   }
