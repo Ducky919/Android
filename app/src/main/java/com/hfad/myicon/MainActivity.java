@@ -3,17 +3,22 @@ package com.hfad.myicon;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.telephony.mbms.MbmsErrors;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.annotation.RequiresApi;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +30,8 @@ public class MainActivity<i> extends Activity {
   boolean isZero = false;
   double resultNumber;
   String historyText;
-  List<String> historyArray = new ArrayList<String>();
+  static List<String> historyArray = new ArrayList<String>();
+  String historyKey = "historyKey";
 
 
 
@@ -151,45 +157,15 @@ public class MainActivity<i> extends Activity {
 
     // Equal Button Click
     equal.setOnClickListener(getOnEqualButtonClickListener(result));
+    historyArray = getArrayList(historyKey);
   }
 
+//  @Override
+//  protected void onResume() {
+//    super.onResume();
 
+//  }
 
-  private View.OnClickListener getOnHistoryButtonClickListener() {
-    return new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        Intent i = new Intent(MainActivity.this,HistoryActivity.class);
-        i.putStringArrayListExtra("historyArray",(ArrayList<String>) historyArray);
-        startActivity(i);
-      }
-    };
-  }
-
-  private View.OnClickListener getOnACButtonClickListener(final TextView result) {
-    return new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        result.setText("0");
-        isZero = true;
-      }
-    };
-  }
-
-  private View.OnClickListener getOnEqualButtonClickListener(final TextView result) {
-    return new View.OnClickListener() {
-      @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-      @Override
-      public void onClick(View v) {
-        resultNumber = evaluateMath(result.getText().toString());
-        historyText = result.getText().toString();
-        DecimalFormat df = new DecimalFormat("0.###");
-        result.setText(df.format(resultNumber));
-        historyText = historyText + "=" +  df.format(resultNumber);
-        historyArray.add(historyText);
-      }
-    };
-  }
 
   private View.OnClickListener getOnButtonClickListener(final TextView result) {
     return new View.OnClickListener() {
@@ -208,4 +184,47 @@ public class MainActivity<i> extends Activity {
       }
     };
   }
+  private View.OnClickListener getOnACButtonClickListener(final TextView result) {
+    return new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        result.setText("0");
+        isZero = true;
+      }
+    };
+  }
+
+  private View.OnClickListener getOnHistoryButtonClickListener() {
+    return new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent i = new Intent(MainActivity.this, HistoryActivity.class);
+        i.putStringArrayListExtra("historyArray", (ArrayList<String>) historyArray);
+        startActivity(i);
+      }
+    };
+  }
+  private View.OnClickListener getOnEqualButtonClickListener(final TextView result) {
+    return new View.OnClickListener() {
+      @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+      @Override
+      public void onClick(View v) {
+        resultNumber = evaluateMath(result.getText().toString());
+        historyText = result.getText().toString();
+        DecimalFormat df = new DecimalFormat("0.###");
+        result.setText(df.format(resultNumber));
+        historyText = historyText + "=" +  df.format(resultNumber);
+        historyArray.add(historyText);
+      }
+    };
+  }
+  public ArrayList<String> getArrayList(String key) {
+    SharedPreferences prefs = getSharedPreferences("historyArray",Context.MODE_PRIVATE);
+    Gson gson = new Gson();
+    String json = prefs.getString(key,null);
+    Type type = new TypeToken<ArrayList<String>>() {}.getType();
+    return gson.fromJson(json, type);
+  }
+
+
 }
