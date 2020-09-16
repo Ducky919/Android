@@ -1,39 +1,25 @@
 package com.hfad.myicon;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.telephony.mbms.MbmsErrors;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import androidx.annotation.RequiresApi;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Stack;
 
 public class MainActivity<i> extends Activity {
   static final HashMap<Integer, String> idButtonMap = new HashMap<>();
   boolean isZero = false;
   double resultNumber;
-  String historyText;
-  static List<String> historyArray = new ArrayList<String>();
-  String historyKey = "historyKey";
-
-
+  static String historyText;
+  CalculatorDatabaseHelper db;
 
   // Function to Execute Operator
   public double applyOp(char op, double operand1, double operand2) {
@@ -98,6 +84,9 @@ public class MainActivity<i> extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.calculator);
 
+    // Get Calculator Database reference
+    db = new CalculatorDatabaseHelper(this);
+
     idButtonMap.put(R.id.number0, "0");
     idButtonMap.put(R.id.number1, "1");
     idButtonMap.put(R.id.number2, "2");
@@ -113,10 +102,7 @@ public class MainActivity<i> extends Activity {
     idButtonMap.put(R.id.multiple, "*");
     idButtonMap.put(R.id.division, "/");
 
-    // Get Calculate Result
     final TextView result = findViewById(R.id.calculatorScreen);
-
-    // Get Number Button
     final Button number0 = findViewById(R.id.number0);
     final Button number1 = findViewById(R.id.number1);
     final Button number2 = findViewById(R.id.number2);
@@ -127,8 +113,6 @@ public class MainActivity<i> extends Activity {
     final Button number7 = findViewById(R.id.number7);
     final Button number8 = findViewById(R.id.number8);
     final Button number9 = findViewById(R.id.number9);
-
-    // Get Function Button
     final Button equal = findViewById(R.id.equal);
     final Button add = findViewById(R.id.add);
     final Button subtract = findViewById(R.id.subtract);
@@ -152,20 +136,9 @@ public class MainActivity<i> extends Activity {
     multiple.setOnClickListener(getOnButtonClickListener(result));
     division.setOnClickListener(getOnButtonClickListener(result));
     history.setOnClickListener(getOnHistoryButtonClickListener());
-    // AC button function
     AC.setOnClickListener(getOnACButtonClickListener(result));
-
-    // Equal Button Click
     equal.setOnClickListener(getOnEqualButtonClickListener(result));
-    historyArray = getArrayList(historyKey);
   }
-
-//  @Override
-//  protected void onResume() {
-//    super.onResume();
-
-//  }
-
 
   private View.OnClickListener getOnButtonClickListener(final TextView result) {
     return new View.OnClickListener() {
@@ -184,6 +157,7 @@ public class MainActivity<i> extends Activity {
       }
     };
   }
+
   private View.OnClickListener getOnACButtonClickListener(final TextView result) {
     return new View.OnClickListener() {
       @Override
@@ -199,11 +173,11 @@ public class MainActivity<i> extends Activity {
       @Override
       public void onClick(View v) {
         Intent i = new Intent(MainActivity.this, HistoryActivity.class);
-        i.putStringArrayListExtra("historyArray", (ArrayList<String>) historyArray);
         startActivity(i);
       }
     };
   }
+
   private View.OnClickListener getOnEqualButtonClickListener(final TextView result) {
     return new View.OnClickListener() {
       @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -213,18 +187,9 @@ public class MainActivity<i> extends Activity {
         historyText = result.getText().toString();
         DecimalFormat df = new DecimalFormat("0.###");
         result.setText(df.format(resultNumber));
-        historyText = historyText + "=" +  df.format(resultNumber);
-        historyArray.add(historyText);
+        historyText = historyText + "=" + df.format(resultNumber);
+        db.insertData(historyText);
       }
     };
   }
-  public ArrayList<String> getArrayList(String key) {
-    SharedPreferences prefs = getSharedPreferences("historyArray",Context.MODE_PRIVATE);
-    Gson gson = new Gson();
-    String json = prefs.getString(key,null);
-    Type type = new TypeToken<ArrayList<String>>() {}.getType();
-    return gson.fromJson(json, type);
-  }
-
-
 }

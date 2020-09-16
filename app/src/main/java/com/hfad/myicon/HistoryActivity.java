@@ -2,11 +2,8 @@ package com.hfad.myicon;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,12 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-
 
 public class HistoryActivity extends Activity {
   PopupWindow popupWindow;
@@ -33,14 +25,16 @@ public class HistoryActivity extends Activity {
   Button okButton;
   ImageButton backButton;
   ImageButton deleteButton;
-  ArrayList<String> historyArray = new ArrayList<String>();
-  String historyKey = "historyKey";
+  CalculatorDatabaseHelper db;
+  ArrayList<String> historyArray = new ArrayList<>();
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.calculator_history);
+
+    db = new CalculatorDatabaseHelper(this);
 
     // Declare Variable
     calculatorMainLayOut = findViewById(R.id.calculatorHistory);
@@ -49,31 +43,9 @@ public class HistoryActivity extends Activity {
     deleteButton = (ImageButton) findViewById(R.id.deleteButton);
     backButton.setOnClickListener(getOnBackButtonClickListener());
     deleteButton.setOnClickListener(getOnDeleteButtonClickListener());
-    setDataToHistoryScreen();
 
-  }
-
-//  @Override
-//  protected void onPause() {
-//    super.onPause();
-//    saveArrayList(historyArray,historyKey);
-//  }
-
-//  @Override
-//  protected void onStart() {
-//    super.onStart();
-//
-//  }
-  @Override
-  protected  void onStop() {
-    super.onStop();
-    saveArrayList(historyArray,historyKey);
-  }
-
-  private void setDataToHistoryScreen() {
-    Intent i = getIntent();
-    historyArray = (ArrayList<String>) i.getStringArrayListExtra("historyArray");
-    if (historyArray != null) {
+    historyArray = db.getData();
+    if (!historyArray.isEmpty()) {
       createTextViewResult(historyArray);
     }
   }
@@ -100,7 +72,7 @@ public class HistoryActivity extends Activity {
   }
 
   private void getOnOkButton(
-          Button okButton, final LinearLayout calculatorScreenLayout, final PopupWindow popupWindow) {
+      Button okButton, final LinearLayout calculatorScreenLayout, final PopupWindow popupWindow) {
     okButton.setOnClickListener(
         new View.OnClickListener() {
           @Override
@@ -108,8 +80,7 @@ public class HistoryActivity extends Activity {
             if (calculatorScreenLayout.getChildCount() > 0) {
               calculatorScreenLayout.removeAllViews();
               popupWindow.dismiss();
-              MainActivity.historyArray.clear();
-              deleteArrayList();
+              db.deleteTable();
             }
           }
         });
@@ -141,21 +112,5 @@ public class HistoryActivity extends Activity {
       textViewResult.setTextSize(40);
       calculatorTextViewLayOut.addView(textViewResult);
     }
-  }
-
-  public void saveArrayList(ArrayList<String> historyArray, String key) {
-    SharedPreferences prefs = getSharedPreferences("historyArray",Context.MODE_PRIVATE);
-    SharedPreferences.Editor editor = prefs.edit();
-    Gson gson = new Gson();
-    String json = gson.toJson(historyArray);
-    editor.putString(key, json);
-    editor.apply();
-  }
-
-  public void deleteArrayList() {
-    SharedPreferences prefs = getSharedPreferences("historyArray",Context.MODE_PRIVATE);
-    SharedPreferences.Editor editor = prefs.edit();
-    editor.clear();
-    editor.apply();
   }
 }
