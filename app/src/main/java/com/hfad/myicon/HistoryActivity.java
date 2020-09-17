@@ -17,6 +17,8 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HistoryActivity extends Activity {
   PopupWindow popupWindow;
@@ -27,8 +29,7 @@ public class HistoryActivity extends Activity {
   ImageButton backButton;
   ImageButton deleteButton;
   CalculatorDatabaseHelper db;
-  ArrayList<String> textArray = new ArrayList<>();
-  ArrayList<String> dateTimeArray = new ArrayList<>();
+  Map<Integer, ArrayList<String>> result = new HashMap<>();
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
@@ -46,11 +47,8 @@ public class HistoryActivity extends Activity {
     backButton.setOnClickListener(getOnBackButtonClickListener());
     deleteButton.setOnClickListener(getOnDeleteButtonClickListener());
 
-    textArray = db.getTextData();
-    dateTimeArray = db.getDateTimeData();
-    if (!textArray.isEmpty() && !dateTimeArray.isEmpty()) {
-      createTextViewResult(textArray, dateTimeArray);
-    }
+    result = db.getTextData();
+    createTextViewResult(result);
   }
 
   private View.OnClickListener getOnDeleteButtonClickListener() {
@@ -108,9 +106,8 @@ public class HistoryActivity extends Activity {
     };
   }
 
-  private void createTextViewResult(ArrayList<String> textArray, ArrayList<String> dateTimeArray) {
-    for (int i = 0; i < textArray.size(); i++) {
-
+  private void createTextViewResult(Map<Integer, ArrayList<String>> input) {
+    for (Map.Entry<Integer, ArrayList<String>> entry : input.entrySet()) {
       // Add Layout to store Result and DateTime Data Within a line
       LinearLayout layout = new LinearLayout(this);
       layout.setOrientation(LinearLayout.HORIZONTAL);
@@ -123,7 +120,7 @@ public class HistoryActivity extends Activity {
       textViewResult.setLayoutParams(
           new TableLayout.LayoutParams(
               TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1f));
-      textViewResult.setText(textArray.get(i));
+      textViewResult.setText(entry.getValue().get(0));
       textViewResult.setTextSize(22);
       layout.addView(textViewResult);
 
@@ -132,7 +129,7 @@ public class HistoryActivity extends Activity {
       dateTimeResult.setLayoutParams(
           new TableLayout.LayoutParams(
               TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1f));
-      dateTimeResult.setText(dateTimeArray.get(i));
+      dateTimeResult.setText(entry.getValue().get(1));
       dateTimeResult.setGravity(Gravity.RIGHT);
       dateTimeResult.setTextSize(22);
       layout.addView(dateTimeResult);
