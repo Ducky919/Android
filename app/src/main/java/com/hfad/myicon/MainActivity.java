@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -20,6 +22,8 @@ public class MainActivity<i> extends Activity {
   double resultNumber;
   static String historyText;
   CalculatorDatabaseHelper db;
+  String dateTime;
+  SimpleDateFormat dateFormat;
 
   // Function to Execute Operator
   public double applyOp(char op, double operand1, double operand2) {
@@ -188,7 +192,9 @@ public class MainActivity<i> extends Activity {
         DecimalFormat df = new DecimalFormat("0.###");
         result.setText(df.format(resultNumber));
         historyText = historyText + "=" + df.format(resultNumber);
-        db.insertData(historyText);
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateTime = dateFormat.format(new Date());
+        db.insertData(historyText, dateTime);
       }
     };
   }

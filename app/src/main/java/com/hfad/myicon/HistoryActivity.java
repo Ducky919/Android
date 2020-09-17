@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -26,7 +27,8 @@ public class HistoryActivity extends Activity {
   ImageButton backButton;
   ImageButton deleteButton;
   CalculatorDatabaseHelper db;
-  ArrayList<String> historyArray = new ArrayList<>();
+  ArrayList<String> textArray = new ArrayList<>();
+  ArrayList<String> dateTimeArray = new ArrayList<>();
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
@@ -39,14 +41,15 @@ public class HistoryActivity extends Activity {
     // Declare Variable
     calculatorMainLayOut = findViewById(R.id.calculatorHistory);
     calculatorTextViewLayOut = findViewById(R.id.calculatorScreenHistory);
-    backButton = (ImageButton) findViewById(R.id.backButton);
-    deleteButton = (ImageButton) findViewById(R.id.deleteButton);
+    backButton = findViewById(R.id.backButton);
+    deleteButton = findViewById(R.id.deleteButton);
     backButton.setOnClickListener(getOnBackButtonClickListener());
     deleteButton.setOnClickListener(getOnDeleteButtonClickListener());
 
-    historyArray = db.getData();
-    if (!historyArray.isEmpty()) {
-      createTextViewResult(historyArray);
+    textArray = db.getTextData();
+    dateTimeArray = db.getDateTimeData();
+    if (!textArray.isEmpty() && !dateTimeArray.isEmpty()) {
+      createTextViewResult(textArray, dateTimeArray);
     }
   }
 
@@ -105,12 +108,36 @@ public class HistoryActivity extends Activity {
     };
   }
 
-  private void createTextViewResult(ArrayList<String> historyArray) {
-    for (int i = 0; i < historyArray.size(); i++) {
+  private void createTextViewResult(ArrayList<String> textArray, ArrayList<String> dateTimeArray) {
+    for (int i = 0; i < textArray.size(); i++) {
+
+      // Add Layout to store Result and DateTime Data Within a line
+      LinearLayout layout = new LinearLayout(this);
+      layout.setOrientation(LinearLayout.HORIZONTAL);
+      layout.setLayoutParams(
+          new LinearLayout.LayoutParams(
+              LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+      // Result TextView
       TextView textViewResult = new TextView(this);
-      textViewResult.setText(historyArray.get(i));
-      textViewResult.setTextSize(40);
-      calculatorTextViewLayOut.addView(textViewResult);
+      textViewResult.setLayoutParams(
+          new TableLayout.LayoutParams(
+              TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1f));
+      textViewResult.setText(textArray.get(i));
+      textViewResult.setTextSize(22);
+      layout.addView(textViewResult);
+
+      // DateTime TextView
+      TextView dateTimeResult = new TextView(this);
+      dateTimeResult.setLayoutParams(
+          new TableLayout.LayoutParams(
+              TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1f));
+      dateTimeResult.setText(dateTimeArray.get(i));
+      dateTimeResult.setGravity(Gravity.RIGHT);
+      dateTimeResult.setTextSize(22);
+      layout.addView(dateTimeResult);
+
+      calculatorTextViewLayOut.addView(layout);
     }
   }
 }

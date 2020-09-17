@@ -13,6 +13,7 @@ class CalculatorDatabaseHelper extends SQLiteOpenHelper {
   public static final int DB_VERSION = 2;
   public static final String TABLE_NAME = "RESULT";
   public static final String COL_HISTORY_TEXT = "HISTORY_TEXT";
+  public static final String COL_DATE_TIME = "DATE_TIME";
 
   CalculatorDatabaseHelper(Context context) {
     super(context, DB_NAME, null, DB_VERSION);
@@ -24,20 +25,23 @@ class CalculatorDatabaseHelper extends SQLiteOpenHelper {
         "CREATE TABLE IF NOT EXISTS "
             + TABLE_NAME
             + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + "HISTORY_TEXT TEXT);");
+            + "HISTORY_TEXT TEXT, "
+            + "DATE_TIME TEXT);");
   }
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
 
-  public void insertData(String numberResult) {
+  public void insertData(String numberResult, String dateTime) {
     SQLiteDatabase db = this.getWritableDatabase();
     ContentValues contentValues = new ContentValues();
     contentValues.put(COL_HISTORY_TEXT, numberResult);
+    contentValues.put(COL_DATE_TIME, dateTime);
     db.insert(TABLE_NAME, null, contentValues);
+    db.close();
   }
 
-  public ArrayList<String> getData() {
+  public ArrayList<String> getTextData() {
     ArrayList<String> historyResult = new ArrayList<>();
 
     SQLiteDatabase db = this.getReadableDatabase();
@@ -45,9 +49,29 @@ class CalculatorDatabaseHelper extends SQLiteOpenHelper {
         db.query(TABLE_NAME, new String[] {COL_HISTORY_TEXT}, null, null, null, null, null);
     if (cursor != null) {
       while (cursor.moveToNext()) {
-        int indexResult = cursor.getColumnIndex(COL_HISTORY_TEXT);
-        String singleResult = cursor.getString(indexResult);
+        int indexText = cursor.getColumnIndex(COL_HISTORY_TEXT);
+        String singleResult = cursor.getString(indexText);
         historyResult.add(singleResult);
+      }
+      cursor.close();
+    } else {
+      cursor.close();
+    }
+    db.close();
+
+    return historyResult;
+  }
+
+  public ArrayList<String> getDateTimeData() {
+    ArrayList<String> historyResult = new ArrayList<>();
+    SQLiteDatabase db = this.getReadableDatabase();
+    Cursor cursor =
+        db.query(TABLE_NAME, new String[] {COL_DATE_TIME}, null, null, null, null, null);
+    if (cursor != null) {
+      while (cursor.moveToNext()) {
+        int indexDateTime = cursor.getColumnIndex(COL_DATE_TIME);
+        String datetimeResult = cursor.getString(indexDateTime);
+        historyResult.add(datetimeResult);
       }
       cursor.close();
     } else {
@@ -61,5 +85,6 @@ class CalculatorDatabaseHelper extends SQLiteOpenHelper {
   public void deleteTable() {
     SQLiteDatabase db = this.getWritableDatabase();
     db.execSQL("DELETE FROM " + TABLE_NAME);
+    db.close();
   }
 }
